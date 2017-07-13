@@ -16,11 +16,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	final int END_STATE = 2;
 	int currentState = MENU_STATE;
 	private Font subtitleFont;
-
+Rocketship rocket;
 	GamePanel() {
 		time = new Timer(1000 / 61, this);
 		titleFont = new Font("Arial", Font.PLAIN, 48);
-		subtitleFont = new Font("Arial", Font.PLAIN, 30);
+		subtitleFont = new Font("Arial", Font.PLAIN, 24);
+		rocket = new Rocketship(250, 700, 50,50);
 	}
 
 	void updateMenuState() {
@@ -28,7 +29,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	void updateGameState() {
-
+rocket.update();
 	}
 
 	void updateEndState() {
@@ -40,25 +41,36 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 		g.fillRect(0, 0, 500, 800);
 		g.setFont(titleFont);
-		g.setColor(Color.BLACK);
-		g.drawString("League Invaders", 100, 300);
+		g.setColor(Color.WHITE);
+		g.drawString("League Invaders", 50, 100);
 		g.setFont(subtitleFont);
-		g.setColor(Color.BLACK);
-		g.drawString("Press Enter to start", 50, 500);
+		g.setColor(Color.WHITE);
+		g.drawString("Press Enter to start", 50, 300);
 		g.setFont(subtitleFont);
-		g.setColor(Color.BLACK);
-		g.drawString("Press and hold space for controls", 50, 700);
+		g.setColor(Color.WHITE);
+		g.drawString("Press and hold space for controls", 50, 500);
 	}
 
 	void drawGameState(Graphics g) {
 		g.setColor(Color.BLACK);
+		
 		g.fillRect(0, 0, 500, 800);
+		rocket.draw(g);
 	}
 
 	void drawEndState(Graphics g) {
 		g.setColor(Color.RED);
-
+		
 		g.fillRect(0, 0, 500, 800);
+		g.setFont(titleFont);
+		g.setColor(Color.BLACK);
+		g.drawString("GAME OVER", 50, 100);
+		g.setFont(subtitleFont);
+		g.setColor(Color.BLACK);
+		g.drawString("You killed _# of alliens", 50, 300);
+		g.setFont(subtitleFont);
+		g.setColor(Color.BLACK);
+		g.drawString("Press backspace to restart", 50, 500);
 	}
 
 	void startGame() {
@@ -115,11 +127,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		if (currentState > END_STATE) {
 			currentState = MENU_STATE;
 		}
+		if (e.getKeyCode() == KeyEvent.VK_UP){
+			
+			rocket.speed=5;
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
 		System.out.println("mad");
+	if (e.getKeyCode() == KeyEvent.VK_UP){
+			
+			rocket.speed =0;
+		}
 	}
 }
