@@ -5,6 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -16,20 +20,45 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	final int END_STATE = 2;
 	int currentState = MENU_STATE;
 	private Font subtitleFont;
-Rocketship rocket;
+	Rocketship rocket;
+	ObjectManager manager;
+	public static BufferedImage alienImg;
+	public static BufferedImage rocketImg;
+	public static BufferedImage bulletImg;
+
+
 	GamePanel() {
 		time = new Timer(1000 / 61, this);
 		titleFont = new Font("Arial", Font.PLAIN, 48);
 		subtitleFont = new Font("Arial", Font.PLAIN, 24);
-		rocket = new Rocketship(250, 700, 50,50);
+		rocket = new Rocketship(250, 700, 50, 50);
+		manager = new ObjectManager();
+		manager.addObject(rocket);
+		try {
+			alienImg = ImageIO.read(this.getClass().getResourceAsStream("allien.png"));
+			rocketImg = ImageIO.read(this.getClass().getResourceAsStream("rocket.png"));
+			bulletImg = ImageIO.read(this.getClass().getResourceAsStream("bullet.png"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	void updateMenuState() {
-
+		manager.setScore(0);
 	}
 
 	void updateGameState() {
-rocket.update();
+		manager.update();
+		manager.manageEnemies();
+		manager.checkCollision();
+		if (rocket.isAlive == false) {
+			currentState = END_STATE;
+			manager.reset();
+			rocket = new Rocketship(250, 700, 50, 50);
+			manager.addObject(rocket);
+		}
 	}
 
 	void updateEndState() {
@@ -53,24 +82,24 @@ rocket.update();
 
 	void drawGameState(Graphics g) {
 		g.setColor(Color.BLACK);
-		
+
 		g.fillRect(0, 0, 500, 800);
-		rocket.draw(g);
+		manager.draw(g);
 	}
 
 	void drawEndState(Graphics g) {
 		g.setColor(Color.RED);
-		
+
 		g.fillRect(0, 0, 500, 800);
 		g.setFont(titleFont);
 		g.setColor(Color.BLACK);
 		g.drawString("GAME OVER", 50, 100);
 		g.setFont(subtitleFont);
 		g.setColor(Color.BLACK);
-		g.drawString("You killed _# of alliens", 50, 300);
+		g.drawString("You killed " + manager.getScore() + " alliens", 50, 300);
 		g.setFont(subtitleFont);
 		g.setColor(Color.BLACK);
-		g.drawString("Press backspace to restart", 50, 500);
+		g.drawString("Press Enter to restart", 50, 500);
 	}
 
 	void startGame() {
@@ -127,9 +156,24 @@ rocket.update();
 		if (currentState > END_STATE) {
 			currentState = MENU_STATE;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_UP){
-			
-			rocket.speed=5;
+		if (e.getKeyCode() == KeyEvent.VK_UP) {
+
+			rocket.speedY = 5;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+
+			rocket.speedY = -5;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+
+			rocket.speedX = 5;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+
+			rocket.speedX = -5;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			manager.addObject(new Projectile(rocket.x + rocket.width / 2, rocket.y, 10, 10));
 		}
 	}
 
@@ -137,9 +181,13 @@ rocket.update();
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
 		System.out.println("mad");
-	if (e.getKeyCode() == KeyEvent.VK_UP){
-			
-			rocket.speed =0;
+		if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
+
+			rocket.speedY = 0;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_RIGHT) {
+
+			rocket.speedX = 0;
 		}
 	}
 }
